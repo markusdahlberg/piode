@@ -31,7 +31,6 @@ class piode_receive:
         self.run_after_receiving = config['receive']['action_after_receive']
         self.erase_after_receiving = config['receive']['erase_after_receive']
         time.sleep(1)
-        #piode.log_debug("Erase after: " + str(self.erase_after_receiving) )       
 
     def init_logging(self):
         global pilog
@@ -44,33 +43,37 @@ class piode_receive:
         self.LCD.cleanShutdown()
     
     def USBAdded(self, device):
-        #mount usb drive
+        # Mount usb drive
         pilog.log_debug('Mounting device')
         subprocess.run('mount '+ device.device_node +' /media/usb -o uid=pi,gid=pi', shell=True)
         time.sleep(2)
-        #package files
+
+        # Copy log file to usb device
+
+        # Package files
         pilog.log_info('Archiving files')
         subprocess.run('tar -zcvf /home/pi/export/export.tar.gz -C /media/usb/ .', shell=True)
         time.sleep(2)
-        #delete files from USB
+        
+        # Delete files from USB
         pilog.log_debug('Erasing storage')
         subprocess.run('rm -rf /media/usb/*', shell=True)
         time.sleep(2)
 
-        #unmount USB
+        # Unmount USB
         pilog.log_debug('Unmounting device')
         subprocess.run('umount -f /media/usb', shell=True)
 
-        #perform action
+        # Perform action
         if self.run_after_receiving != "":
             pilog.log_info("Custom action")
             subprocess.run(self.run_after_receiving, shell=True)
 
-        #erase
+        # Erase
         if self.erase_after_receiving == "True" or self.erase_after_receiving == "true" or self.erase_after_receiving == "1":
             pilog.log_info("Erasing files")
-            x = subprocess.run('rm -rf /home/pi/export/*', shell=True)
-            pilog.log_debug("erase response: " + str(x))
+            erase_result = subprocess.run('rm -rf /home/pi/export/*', shell=True)
+            pilog.log_debug("erase response: " + str(erase_result))
 
         GPIO.output(37, GPIO.LOW)
         time.sleep(1)
@@ -92,7 +95,6 @@ class piode_receive:
                 if device.get('DEVTYPE') == "partition":
                     if device.action == "add":
                         pilog.log_debug('Device added')
-                        #pilog.log_debug(device.get('ID_SERIAL') + '  ' + device.action + '  ' + device.device_node)
                         self.USBAdded(device)
 
 

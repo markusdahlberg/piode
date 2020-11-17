@@ -10,11 +10,7 @@ import subprocess
 import configparser
 import os.path
 
-
-
 pilog = None
-
-
 
 class DiodeStates(Enum):
     IDLE = 1
@@ -28,7 +24,6 @@ class piode_send:
         self.LCD = None
         self.Keypad = None
         self.State = DiodeStates.IDLE
-        self.activate = False
         self.trigger_on_filename = None
         self.trigger_on_size = None
         self.trigger_on_any_file = None
@@ -43,23 +38,26 @@ class piode_send:
 
         self.check_interval = 2
 
-        self.origin_folder = '/home/pi/data/'
+        self.origin_folder = '/home/pi/data/' # default value for origin folder if path is empty
         self.usb_serial = ''
 
         GPIO.setwarnings(False)
         GPIO.setmode(GPIO.BOARD)           
         GPIO.setup(37, GPIO.OUT) # Button on Switch Outside
 
+    # Initialize custom logging module
     def init_logging(self):
         global pilog
         pilog = piode_logger(self.LCD)
 
+    # Initialize RPI LCD1602 Add-on
     def init_display(self):        
         self.LCD = LCDWrapper.Wrapper() # Initialize LCD
         self.Keypad = KeypadHandler.Keypad() # Initialize Keypad
 
+
+    #Check USB memory prescense and identity
     def init_USB(self):
-        #Check USB memory prescense and identity
         context = pyudev.Context()
         for device in context.list_devices(subsystem='block'):            
             if device.get('ID_SERIAL') is not None:
@@ -68,6 +66,7 @@ class piode_send:
                         self.State = DiodeStates.IDLE
                     else:
                         self.State = DiodeStates.WAITING    
+
 
     def init(self):
         self.init_display()
@@ -107,7 +106,7 @@ class piode_send:
             else:
                 self.trigger_on_time = None
         
-        self.trigger_on_interval    = config['triggers']['interval'] * 60           
+        self.trigger_on_interval    = config['triggers']['interval'] * 60 # multiply value to convert from seconds to minutes.
         
         if self.trigger_on_interval != None:
             if self.trigger_on_interval != "":                
@@ -117,6 +116,7 @@ class piode_send:
         
         self.trigger_on_command_return_zero = config['triggers']['command_return_0']
 
+
     def init_keypad(self):
         self.Keypad = KeypadHandler.Keypad() # Initialize Keypad
         self.Keypad.AddButtonEvent("left", self.button_push)
@@ -124,61 +124,69 @@ class piode_send:
     def shutdown(self):
         self.LCD.cleanShutdown()
 
+    # Main loop
     def main(self):    
         self.init()
         while self.application_active:
             if self.State == DiodeStates.WAITING:
                 pilog.log_info('Waiting')
                 self.init_USB()       
-            time.sleep(self.check_interval)
+
+            time.sleep(self.check_interval) # Take a break specified amount of seconds
 
             if self.State == DiodeStates.IDLE:
                 pilog.log_info("Ready")
-                self.check_triggers()
+                self.check_triggers() # Check triggers for export
 
-            if self.activate:
-                export(None)
-
+    # Check all export triggers
     def check_triggers(self):
+
+        # Exclusively use trigger button.
         if self.trigger_on_only_button != "True" and self.trigger_on_only_button != "true" and self.trigger_on_only_button != "1":
             if self.trigger_on_filename != None:
                 if os.path.isfile(self.trigger_on_filename):
                     pilog.log_debug("Trigger: filename")
-                    self.export(0)
+                    self.export(0) # commence export.
 
+            # Total size of files in origin folder.
             if self.trigger_on_size != None:            
                 if self.folder_size(self.origin_folder) > self.trigger_on_size:
                     pilog.log_debug("Trigger: size")
-                    self.export(0)
+                    self.export(0) # commence export.
 
+            # Any file present in origin folder.
             if self.trigger_on_any_file != None:
                 if self.trigger_on_any_file == "True" or self.trigger_on_any_file == "true" or self.trigger_on_any_file == "1":
                     if sum([len(files) for r, d, files in os.walk(self.origin_folder)]) > 0:
                         pilog.log_debug("Trigger: any files")
-                        self.export(0)
+                        self.export(0)  # commence export.
 
+            # Every n minutes.
             if self.trigger_on_interval != None:
                 if self.trigger_on_interval > 0:
                     if time.time() > self.time_of_last_export + self.trigger_on_interval:
                             pilog.log_debug("Trigger: interval")
                             self.time_of_last_export = time.time()
-                            self.export(0)
+                            self.export(0) # commence export.
             
+            # Every day at specified time.
             if self.trigger_on_time != None:
                 if self.date_last_execution < datetime.today().date():
                     if self.trigger_on_time > datetime.now().time():
                         pilog.log_debug("Trigger: time")
                         self.date_last_execution = datetime.today().date()
-                        self.export(0)
+                        self.export(0) # commence export.
 
+            # If specified process returns 0
             if self.trigger_on_command_return_zero != None:
-                if self.trigger_on_command_return_zero != "":
-                    if subprocess.call(self.trigger_on_command_return_zero + "> /dev/null", shell=True) == 0:
-                        self.export(0)
+                if self.trigger_on_command_return_zero != "":                
+                    if subprocess.call(self.trigger_on_command_return_zero + "> /dev/null", shell=True) == 0: # if self.trigger_on_command_return_zero comes back with a return code of 0
+                        pilog.log_debug("Trigger: external proc.")
+                        self.export(0) # commence export.
 
                 
 
-
+    # Action to run when button is pushed
     def button_push(self, button_id):
         button_name = None
         if button_id == 24:
@@ -187,6 +195,7 @@ class piode_send:
             pilog.log_debug("Trigger: button")
             self.export(0)
         
+    # Get folder size
     def folder_size(self, path='.'):
         total = 0
         for entry in os.scandir(path):
@@ -201,8 +210,8 @@ class piode_send:
         if self.State != DiodeStates.IDLE:
             pilog.log_debug("System Busy")
         else:
-            if sum([len(files) for r, d, files in os.walk(self.origin_folder)]) > 0: 
-                self.State = DiodeStates.EXPORTING
+            if sum([len(files) for r, d, files in os.walk(self.origin_folder)]) > 0: #if there are more than 0 files in the origin folder (including subfolders)
+                self.State = DiodeStates.EXPORTING # set our state as exporting, which blocks further actions until state is changed to IDLE again
                 pilog.log_info("Exporting")
 
                 #Check USB memory prescense and identity
@@ -210,23 +219,25 @@ class piode_send:
                 for device in context.list_devices(subsystem='block'):            
                     if device.get('ID_SERIAL') is not None:
                         if device.get('DEVTYPE') == "partition":
-                            #print(device.get('ID_SERIAL')  + "   " + device.device_node)
-                            if "4C530000090312115342" in device.get('ID_SERIAL'): #check that our device has the right serial
-                                subprocess.run('mount '+ device.device_node +' /media/usb -o uid=pi,gid=pi', shell=True)
+                            if self.usb_serial in device.get('ID_SERIAL'): #check that our device has the right serial
+                                subprocess.run('mount '+ device.device_node +' /media/usb -o uid=pi,gid=pi', shell=True) # mount usb device
                     
-                                subprocess.run('rm -rf /media/usb/*', shell=True)
-                                subprocess.run('cp -rv /home/pi/data/* /media/usb/', shell=True)
+                                subprocess.run('rm -rf /media/usb/*', shell=True) # remove files from usb device
+                                copied = subprocess.run('cp -rv ' + self.origin_folder + '* /media/usb/', shell=True) # copy files from origin folder to usb device         
+                                pilog.log_debug('Files copied')                       
+                                pilog.log_debug(copied)
+                                subprocess.run('cp -rv /var/log/piode-send.log /media/usb/', shell=True) # copy log to usb device
                                 
                                 #Unmount USB memory
-                                subprocess.run('umount -f /media/usb', shell=True)
+                                subprocess.run('umount -f /media/usb', shell=True) # unmount usb device
 
                                 GPIO.output(37, GPIO.LOW) # "push" USB Switch to other side by simluating
-                                time.sleep(1)             # pushing button
-                                GPIO.output(37, GPIO.HIGH) # and simulate letting it go
+                                time.sleep(1)             # pushing button...
+                                GPIO.output(37, GPIO.HIGH) # ...and simulate letting it go
                                 time.sleep(3)
 
                                 pilog.log_info("Erasing origin")
-                                subprocess.run('rm -rf /home/pi/data/*', shell=True)
+                                subprocess.run('rm -rf ' + self.origin_folder + '*', shell=True)  # remove files from origin folder
 
                                 self.State = DiodeStates.WAITING
                                 pilog.log_info("Waiting")

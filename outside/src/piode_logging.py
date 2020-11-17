@@ -3,9 +3,9 @@ from datetime import datetime
 
 class piode_logger:
     def __init__(self, lcd):
-        self.logger = logging.getLogger('piode-send')
+        self.logger = logging.getLogger('piode-receive')
         self.logger.setLevel(logging.DEBUG)
-        self.fileHandler = logging.FileHandler('/var/log/piode.log')
+        self.fileHandler = logging.FileHandler('/var/log/piode-receive.log')
         self.fileHandler.setLevel(logging.DEBUG)
         self.consoleHandler = logging.StreamHandler()
         self.consoleHandler.setLevel(logging.DEBUG)
