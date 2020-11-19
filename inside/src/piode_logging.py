@@ -27,6 +27,8 @@ class piode_logger:
     def log_to_display(self, message):
         now = datetime.now()
         current_time = now.strftime("%H:%M:%S")        
+        if len(message) > 16:
+            message = message[:14] + '..'
         self.display.text = current_time + '\r\n' + message
 
     # Wrappers for log functions
