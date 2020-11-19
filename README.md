@@ -26,12 +26,20 @@ The Raspberry Pi's chosen for this proof of concept is not suited for a producti
 - USB Flashdrive
 
 #### Connections
-Be careful while soldering this. If you make a mistake it is likely to damage the parts. See the [this diagram](https://github.com/VanDerGroot/piode/blob/main/connection%20sketch.png) for more details.
+Be careful while soldering this. If you make a mistake it is likely to damage the parts. 
+
+![alt text](https://github.com/VanDerGroot/piode/blob/main/connection%20sketch.png "Diagram")
+
 - The LCD modules are attached to the Raspberry Pis as described in the modules documentation.
 - USB cables are connected from each Raspberry Pi to the USB switch.
 - USB flashdrive is connected to device side of USB switch.
 - Dupont cables female end are connected to GPIO26 on both Raspberry Pis.
 - Dupont cables male end is soldered to the pad on each button that gets pulled low when the button is pressed.
+
+#### Functional description
+
+![alt text](https://github.com/VanDerGroot/piode/blob/main/event_flowchart.png "Flowchart")
+
 
 #### Installation
 Make install.sh an executable file, and then run it.
