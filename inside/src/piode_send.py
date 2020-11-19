@@ -223,9 +223,11 @@ class piode_send:
                                 subprocess.run('mount '+ device.device_node +' /media/usb -o uid=pi,gid=pi', shell=True) # mount usb device
                     
                                 subprocess.run('rm -rf /media/usb/*', shell=True) # remove files from usb device
-                                copied = subprocess.run('cp -rv ' + self.origin_folder + '* /media/usb/', shell=True) # copy files from origin folder to usb device         
+                                output = subprocess.run('cp -rv ' + self.origin_folder + '* /media/usb/', shell=True, stdout=subprocess.PIPE) # copy files from origin folder to usb device         
+                                copied = output.stdout.decode("utf-8") 
                                 pilog.log_debug('Files copied')                       
                                 pilog.log_debug(copied)
+                                                 
                                 subprocess.run('cp -rv /var/log/piode-send.log /media/usb/', shell=True) # copy log to usb device
                                 
                                 #Unmount USB memory
