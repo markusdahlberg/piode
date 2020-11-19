@@ -49,6 +49,7 @@ class piode_receive:
         time.sleep(2)
 
         # Copy log file to usb device
+        subprocess.run('cp -rv /var/log/piode-receive.log /media/usb/', shell=True)
 
         # Package files
         pilog.log_info('Archiving files')
