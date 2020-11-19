@@ -4,15 +4,18 @@ One way transfer of data using two raspberry pi and a usb switch.
 ## Introduction
 
 ### Background
-This is by no means the only way, and most likely not the best way, to perform this operation. This project was made as an experiment that grew into the current state.
+This is by no means the only way, and most likely not the best way, to perform this operation. This project was made as an experiment and a proof of concept.
 
 ### Future
-We won't be putting any more time into this project, but we leave it here in case it is useful to someone, in whole or part.
+Feel free to continue to develop and modify the project, we will leave it here in case it is useful to someone, in whole or part.
 
 ### Documentation
 
 #### Overview
 The project consists of two Raspberry Pi (in our case version 3), and one USB switch. When a condition is met on the first Raspberry Pi (called 'inside') any files in a designated folder are transferred to a USB flashdrive mounted in the USB switch. The switch is then switched so that the USB flashdrive is instead connected to the second Raspberry Pi (called 'outside'), where the content is handled according to some simple rules.
+
+The Raspberry Pi's chosen for this proof of concept is not suited for a production environment. The SD cards are not suited for continious R/W and the wireless connections can be a security issue if they are not a wanted feature. Please send your suggestions for a more appropiate embedded computer to this project. 
+
 
 #### Parts
 - Rapberry Pi 3 x2
@@ -23,7 +26,7 @@ The project consists of two Raspberry Pi (in our case version 3), and one USB sw
 - USB Flashdrive
 
 #### Connections
-Before attempting this, make sure you know what you are doing, and that this is likely to damage the parts if done incorrectly. See the [this diagram](https://github.com/VanDerGroot/piode/blob/main/connection%20sketch.png) for more details.
+Be carefull while soldering this. If you make a mistake it is likely to damage the parts. See the [this diagram](https://github.com/VanDerGroot/piode/blob/main/connection%20sketch.png) for more details.
 - The LCD modules are attatched to the Raspberry Pis as described in the modules documentation.
 - USB cables are connected from each Raspberry Pi to the USB switch.
 - USB flashdrive is connected to device side of USB switch.
@@ -38,4 +41,6 @@ Make install.sh an executable file, and then run it.
 This project was thought up and led by Markus Dahlberg and programmed by Jim Groth
 
 #### Why
-Why not?
+To make a DIY poor mans data diode, that with a small investment can keep two information systems "almost" physically separated and ensure onedirectional data flows. 
+
+
