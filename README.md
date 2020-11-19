@@ -14,7 +14,7 @@ Feel free to continue to develop and modify the project, we will leave it here i
 #### Overview
 The project consists of two Raspberry Pi (in our case version 3), and one USB switch. When a condition is met on the first Raspberry Pi (called 'inside') any files in a designated folder are transferred to a USB flashdrive mounted in the USB switch. The switch is then switched so that the USB flashdrive is instead connected to the second Raspberry Pi (called 'outside'), where the content is handled according to some simple rules.
 
-The Raspberry Pi's chosen for this proof of concept is not suited for a production environment. The SD cards are not suited for continious R/W and the wireless connections can be a security issue if they are not a wanted feature. Please send your suggestions for a more appropiate embedded computer to this project. 
+The Raspberry Pi's chosen for this proof of concept is not suited for a production environment. The SD cards are not suited for continuous R/W and the wireless connections can be a security issue if they are not a wanted feature. Please send your suggestions for a more appropriate embedded computer to this project. 
 
 
 #### Parts
@@ -26,8 +26,8 @@ The Raspberry Pi's chosen for this proof of concept is not suited for a producti
 - USB Flashdrive
 
 #### Connections
-Be carefull while soldering this. If you make a mistake it is likely to damage the parts. See the [this diagram](https://github.com/VanDerGroot/piode/blob/main/connection%20sketch.png) for more details.
-- The LCD modules are attatched to the Raspberry Pis as described in the modules documentation.
+Be careful while soldering this. If you make a mistake it is likely to damage the parts. See the [this diagram](https://github.com/VanDerGroot/piode/blob/main/connection%20sketch.png) for more details.
+- The LCD modules are attached to the Raspberry Pis as described in the modules documentation.
 - USB cables are connected from each Raspberry Pi to the USB switch.
 - USB flashdrive is connected to device side of USB switch.
 - Dupont cables female end are connected to GPIO26 on both Raspberry Pis.
@@ -41,6 +41,6 @@ Make install.sh an executable file, and then run it.
 This project was thought up and led by Markus Dahlberg and programmed by Jim Groth
 
 #### Why
-To make a DIY poor mans data diode, that with a small investment can keep two information systems "almost" physically separated and ensure onedirectional data flows. 
+To make a DIY poor man's data diode, that with a small investment can keep two information systems "almost" physically separated and ensure unidirectional data flows. 
 
 
