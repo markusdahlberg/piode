@@ -38,3 +38,4 @@ Make install.sh an executable file, and then run it.
 This project was thought up and led by Markus Dahlberg and programmed by Jim Groth
 
 #### Why
+Why not?
