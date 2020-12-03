@@ -42,7 +42,11 @@ Be careful while soldering this. If you make a mistake it is likely to damage th
 
 
 #### Installation
-Make install.sh an executable file, and then run it.
+- Copy the files from the inside directory to one of the Raspberry PI's.
+- Make install.sh an executable file, and then run it.
+
+- Copy the files from the outside directory to the other Raspberry PI.
+- Make install.sh an executable file, and then run it.
 
 ### Who and why
 #### Who
